@@ -14,18 +14,37 @@ admin.initializeApp({
 var db = admin.firestore();
 
 
-app.get('/product/list', (req, res) => {
+// app.get('/product/list', (req, res) => {
+//     db.collection('cu-pbl/').get().then(qs => {
+//
+//         const productArr = [];
+//
+//         qs.forEach(x => {
+//             productArr.push(x.data())
+//         });
+//
+//         res.send(
+//             {
+//                 data: productArr
+//             }
+//         );
+//     })
+// });
+
+app.get('/product/:id', (req, res) => {
+    const id = req.params.id;
+
     db.collection('cu-pbl/').get().then(qs => {
 
-        const productArr = [];
+        let myData = {};
 
         qs.forEach(x => {
-            productArr.push(x.data())
-        });
+            const data = x.data();
 
-        res.send(
-            productArr
-        );
+            if (String(data['id']) === id) {
+                return res.send(data);
+            }
+        });
     })
 });
 
