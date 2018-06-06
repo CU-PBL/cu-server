@@ -14,22 +14,22 @@ admin.initializeApp({
 var db = admin.firestore();
 
 
-// app.get('/product/list', (req, res) => {
-//     db.collection('cu-pbl/').get().then(qs => {
-//
-//         const productArr = [];
-//
-//         qs.forEach(x => {
-//             productArr.push(x.data())
-//         });
-//
-//         res.send(
-//             {
-//                 data: productArr
-//             }
-//         );
-//     })
-// });
+app.get('/product/list', (req, res) => {
+    db.collection('cu-pbl/').get().then(qs => {
+
+        const productArr = [];
+
+        qs.forEach(x => {
+            productArr.push(x.data())
+        });
+
+        res.send(
+            {
+                data: productArr
+            }
+        );
+    })
+});
 
 app.get('/product/:id', (req, res) => {
     const id = req.params.id;
@@ -42,7 +42,9 @@ app.get('/product/:id', (req, res) => {
             const data = x.data();
 
             if (String(data['id']) === id) {
-                return res.send(data);
+                const para = req.query.para;
+
+                return res.send(data[para]);
             }
         });
     })
@@ -55,11 +57,4 @@ app.post('/', (req, res) => {
 
 app.listen(3000, () => {
     console.log('server');
-    var docRef = db.collection('users').doc('alovelace');
-
-    var setAda = docRef.set({
-        first: 'Ada',
-        last: 'Lovelace',
-        born: 1815
-    });
 });
