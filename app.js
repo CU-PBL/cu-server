@@ -16,6 +16,37 @@ admin.initializeApp({
 const db = admin.firestore();
 app.use(bodyParser.json());
 
+// 재고 관리
+app.post('/stock', (req, res) => {
+    const inpuBody = req.body;
+    const calcFlag = req.query['flag'];
+
+    console.log(calcFlag);
+
+    const pblRef = db.collection('cu-stock');
+
+    inpuBody.forEach(item => {
+        const docRef = pblRef.doc(`stock${item['id']}`);
+
+        docRef.get().then(x => {
+            const prevData = x.data();
+
+            if (calcFlag === 'sell') {
+                prevData['stock'] -= item['stock'];
+            } else {
+                prevData['stock'] += item['stock'];
+            }
+
+            docRef.update({
+                'stock': prevData['stock']
+            })
+        });
+
+    });
+
+    return res.send(inpuBody);
+});
+
 // 물품 추가 
 app.post('/product', (req, res) => {
     const inputBody = req.body;
@@ -44,16 +75,10 @@ app.get('/product/list', (req, res) => {
 app.get('/product/:id', (req, res) => {
     const id = req.params.id;
 
-    db.collection('cu-pbl/').get().then(qs => {
-
-        let myData = {};
-
+    db.collection('cu-product/').where('id', '==', parseInt(id)).get().then(qs => {
         qs.forEach(x => {
             const data = x.data();
-
-            if (String(data['id']) === id) {
-                return res.send(data);
-            }
+            return res.send(data);
         });
     })
 });
