@@ -75,11 +75,9 @@ app.get('/product/list', (req, res) => {
 app.get('/product/:id', (req, res) => {
     const id = req.params.id;
 
-    db.collection('cu-product/').where('id', '==', parseInt(id)).get().then(qs => {
-        qs.forEach(x => {
-            const data = x.data();
-            return res.send(data);
-        });
+    db.collection('cu-product/').doc(`product${id}`).get().then(x => {
+        const data = x.data();
+        return res.send(data);
     })
 });
 
