@@ -6,6 +6,11 @@ const app = express();
 const admin = require('firebase-admin');
 const bodyParser = require('body-parser');
 const datetime = require('node-datetime');
+const morgan = require('morgan');
+
+morgan('tiny');
+app.use(bodyParser.json());
+app.use(morgan('combined'));
 
 const serviceAccount = require('./key.json');
 
@@ -14,7 +19,7 @@ admin.initializeApp({
 });
 
 const db = admin.firestore();
-app.use(bodyParser.json());
+
 
 // 재고 관리
 app.post('/stock', (req, res) => {

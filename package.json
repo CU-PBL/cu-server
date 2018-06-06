@@ -21,6 +21,7 @@
     "csv-reader": "^1.0.3",
     "express": "^4.16.3",
     "firebase-admin": "^5.12.1",
+    "morgan": "^1.9.0",
     "node-datetime": "^2.0.6"
   }
 }
