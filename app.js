@@ -23,11 +23,7 @@ app.get('/product/list', (req, res) => {
             productArr.push(x.data())
         });
 
-        res.send(
-            {
-                data: productArr
-            }
-        );
+        res.send(productArr);
     })
 });
 
@@ -43,18 +39,14 @@ app.get('/product/:id', (req, res) => {
 
             if (String(data['id']) === id) {
                 const para = req.query.para;
+                
 
-                return res.send(data[para]);
+                return res.send(String(data[para]));
             }
         });
     })
 });
 
-app.post('/', (req, res) => {
-
-});
-
-
-app.listen(3000, () => {
+app.listen(8000, () => {
     console.log('server');
 });
