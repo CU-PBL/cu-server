@@ -4,14 +4,17 @@
 const express = require('express');
 const app = express();
 const admin = require('firebase-admin');
+const bodyParser = require('body-parser');
+const datetime = require('node-datetime');
 
-var serviceAccount = require('./key.json');
+const serviceAccount = require('./key.json');
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
 });
 
-var db = admin.firestore();
+const db = admin.firestore();
+app.use(bodyParser.json());
 
 
 app.get('/product/list', (req, res) => {
@@ -39,12 +42,24 @@ app.get('/product/:id', (req, res) => {
 
             if (String(data['id']) === id) {
                 const para = req.query.para;
-                
 
                 return res.send(String(data[para]));
             }
         });
     })
+});
+
+app.post('/sell', (req, res) => {
+    const inputBody = req.body;
+    const formatTime = datetime.create().format('Y-m-d H:M:S');
+
+    inputBody['date'] = formatTime;
+
+    const newSellRef = db.collection('cu-sell').doc();
+
+    newSellRef.set(inputBody);
+
+    res.send(inputBody);
 });
 
 app.listen(8000, () => {
