@@ -64,7 +64,7 @@ app.post('/product', (req, res) => {
 
 // 물품 리스트
 app.get('/product/list', (req, res) => {
-    db.collection('cu-pbl/').get().then(qs => {
+    db.collection('cu-product/').get().then(qs => {
 
         const productArr = [];
 
