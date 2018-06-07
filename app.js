@@ -100,6 +100,32 @@ app.post('/sell', (req, res) => {
     res.send(inputBody);
 });
 
+app.post('/login', (req, res) => {
+    const inputBody = req.body;
+
+    let loginFlag = false;
+
+    db.collection('test-login').doc(inputBody['id']).get().then(x => {
+        
+        if (x.data() == undefined) {
+            return res.send({
+                flag: loginFlag
+            });
+        }
+
+        const dbPW = x.data()['passwd'];
+
+        if (dbPW == inputBody['passwd']) {
+            loginFlag = true;
+            console.log(inputBody['id'], loginFlag);
+        }
+
+        return res.send({
+            flag: loginFlag
+        });
+    });
+});
+
 // 서버 시작
 // 8000: develop
 // 3000: master
