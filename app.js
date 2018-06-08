@@ -57,7 +57,7 @@ app.post('/product', (req, res) => {
     const inputBody = req.body;
     const productID = inputBody['id'];
 
-    const pblRef = db.collection('test-product').doc(`product${productID}`);
+    const pblRef = db.collection('cu-product').doc(`product${productID}`);
     pblRef.set(inputBody);
 
     res.send(inputBody);
