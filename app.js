@@ -52,7 +52,32 @@ app.post('/stock', (req, res) => {
     return res.send(inpuBody);
 });
 
-// 물품 추가 
+// 재고 리스트 
+app.get('/stock/list', (req, res) => {
+    db.collection('cu-stock').get().then(qs => {
+        const stockObj = {}
+
+        qs.forEach(x => {
+            const temp = x.data()
+            stockObj[temp['id']] = temp['stock']
+        })
+
+        db.collection('cu-product').get().then(qq => {
+            const stockArr = [];
+
+            qq.forEach(xx => {
+                const xTemp = xx.data()
+                xTemp['stock'] = stockObj[xTemp['id']]
+                stockArr.push(xTemp);
+            });
+
+            res.send(stockArr)
+        });
+
+    });
+});
+
+// 물품 항목 추가 
 app.post('/product', (req, res) => {
     const inputBody = req.body;
     const productID = inputBody['id'];
@@ -101,13 +126,14 @@ app.post('/sell', (req, res) => {
     res.send(inputBody);
 });
 
+// 로그인 기능 
 app.post('/login', (req, res) => {
     const inputBody = req.body;
 
     let loginFlag = false;
 
     db.collection('test-login').doc(inputBody['id']).get().then(x => {
-        
+
         if (x.data() == undefined) {
             return res.send({
                 flag: loginFlag
