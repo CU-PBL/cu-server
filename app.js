@@ -26,8 +26,6 @@ app.post('/stock', (req, res) => {
     const inpuBody = req.body;
     const calcFlag = req.query['flag'];
 
-    console.log(calcFlag);
-
     const pblRef = db.collection('cu-stock');
 
     inpuBody.forEach(item => {
@@ -110,6 +108,18 @@ app.get('/product/:id', (req, res) => {
         const data = x.data();
         return res.send(data);
     })
+});
+
+app.get('/sell/list', (req, res) => {
+    db.collection('cu-sell').get().then(qs => {
+        const sellArr = []
+
+        qs.forEach(x => {
+            sellArr.push(x.data());
+        });
+
+        res.send(sellArr);
+    });
 });
 
 // 판매
