@@ -3,10 +3,40 @@
  */
 const express = require('express');
 const app = express();
-const admin = require('firebase-admin');
 const bodyParser = require('body-parser');
-const datetime = require('node-datetime');
 const morgan = require('morgan');
+
+const crypto = require('crypto');
+const secret = 'cu';
+
+const admin = require('firebase-admin');
+
+const datetime = require('node-datetime');
+
+var CsvReadableStream = require('csv-reader');
+
+var fs = require('fs');
+var inputStream = fs.createReadStream('product_data.csv', 'utf8');
+
+const DDataObj = {};
+
+inputStream
+    .pipe(CsvReadableStream({ parseNumbers: true, parseBooleans: true, trim: true }))
+    .on('data', (row) => {
+
+        const data_obj = {
+            'category': row[0],
+            'sub_category': row[1],
+            'id': row[2],
+            'name': row[3],
+            'price': row[4]
+        };
+
+        DDataObj[row[2]] = data_obj;
+    })
+    .on('end', () => {
+        console.log('data load!!')
+    });
 
 morgan('tiny');
 app.use(bodyParser.json());
@@ -27,8 +57,18 @@ app.post('/stock', (req, res) => {
     const calcFlag = req.query['flag'];
 
     const pblRef = db.collection('cu-stock');
+    let sum = 0;
 
     inpuBody.forEach(item => {
+        sum += DDataObj[item['id']]['price'] * item['stock']
+    });
+
+    inpuBody.forEach((item, idx, arr) => {
+        console.log(DDataObj[item['id']]['name']);
+        item['name'] = DDataObj[item['id']]['name'];
+    });
+
+    inpuBody.forEach((item, idx, arr) => {
         const docRef = pblRef.doc(`stock${item['id']}`);
 
         docRef.get().then(x => {
@@ -36,6 +76,12 @@ app.post('/stock', (req, res) => {
 
             if (calcFlag === 'sell') {
                 prevData['stock'] -= item['stock'];
+
+                if (arr.length - 1 == idx) {
+                    db.collection('cu-sale-stock').doc(`${sum}`).set({
+                        data: inpuBody
+                    });
+                }
             } else {
                 prevData['stock'] += item['stock'];
             }
@@ -44,7 +90,6 @@ app.post('/stock', (req, res) => {
                 'stock': prevData['stock']
             })
         });
-
     });
 
     return res.send(inpuBody);
@@ -129,11 +174,27 @@ app.post('/sell', (req, res) => {
 
     inputBody['date'] = formatTime;
 
-    const newSellRef = db.collection('cu-sell').doc();
+    const sumHash = crypto
+        .createHmac('sha256', secret)
+        .update(String(inputBody['sum']))
+        .digest('hex');
 
-    newSellRef.set(inputBody);
+    inputBody['hash'] = sumHash;
 
-    res.send(inputBody);
+    const newSellRef = db
+        .collection('cu-sell')
+        .doc(sumHash)
+        .set(inputBody);
+
+    const saleDb = db.collection('cu-sale-stock');
+
+    saleDb.doc(String(inputBody['sum'])).get().then(x => {
+        const prevData = x.data();
+        saleDb.doc(String(inputBody['sum'])).delete();
+        saleDb.doc(sumHash).set(prevData);
+
+        return res.send(inputBody);
+    });
 });
 
 // 로그인 기능 
