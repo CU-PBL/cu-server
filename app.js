@@ -155,6 +155,15 @@ app.get('/product/:id', (req, res) => {
     })
 });
 
+// 판매 내역 상세 보기 
+app.get('/sell/list/:hash', (req, res) => {
+    const docHash = req.params['hash'];
+
+    db.collection('cu-sale-stock').doc(docHash).get().then(x => {
+        return res.send(x.data()['data']);
+    });
+});
+
 app.get('/sell/list', (req, res) => {
     db.collection('cu-sell').get().then(qs => {
         const sellArr = []
