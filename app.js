@@ -139,6 +139,10 @@ app.get('/stock/list', (req, res) => {
                 stockArr.push(xTemp);
             });
 
+            stockArr.sort((a, b) => {
+                return a['id'] - b['id'];
+            })
+
             return res.send(stockArr);
         });
 
