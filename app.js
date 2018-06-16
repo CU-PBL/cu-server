@@ -50,6 +50,31 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
+app.post('/refund', (req, res) => {
+    const reqHash = req.body['hash'];
+    
+    db.collection('cu-sale-stock').doc(reqHash).get().then(x => {
+        const stockArr = x.data()['data'];       
+        
+        stockArr.forEach((item, idx) => {
+            const stockRef = db.collection('cu-stock').doc(`stock${item['id']}`);
+            
+            stockRef.get().then(stockData => {
+                const prevData = stockData.data();
+                prevData['stock'] += item['stock'];
+                
+                stockRef.set(prevData);    
+            })     
+            
+            if(idx == stockArr.length - 1){
+                db.collection('cu-sale-stock').doc(reqHash).delete();
+                db.collection('cu-sell').doc(reqHash).delete();
+                
+                return res.send(reqHash);
+            }
+        });
+    });
+});
 
 // 재고 관리
 app.post('/stock', (req, res) => {
