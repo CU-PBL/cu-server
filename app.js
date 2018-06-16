@@ -139,7 +139,7 @@ app.get('/stock/list', (req, res) => {
                 stockArr.push(xTemp);
             });
 
-            res.send(stockArr)
+            return res.send(stockArr);
         });
 
     });
@@ -196,8 +196,12 @@ app.get('/sell/list', (req, res) => {
         qs.forEach(x => {
             sellArr.push(x.data());
         });
+        
+        sellArr.sort((a, b) => {
+            return new Date(b['date']) - new Date(a['date']);
+        });
 
-        res.send(sellArr);
+        return res.send(sellArr);
     });
 });
 
@@ -262,5 +266,7 @@ app.post('/login', (req, res) => {
 // 8000: develop
 // 3000: master
 app.listen(8000, () => {
-    console.log('server');
+    fs.readFile('start.txt', 'utf-8', (err, data) => {
+        console.log(data);
+    })
 });
